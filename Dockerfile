@@ -1,6 +1,6 @@
 FROM dunglas/frankenphp:latest-php8.2
 
-# install the PHP extensions we need (https://make.wordpress.org/hosting/handbook/handbook/server-environment/#php-extensions)
+# install the PHP extensions we need
 RUN install-php-extensions \
     bcmath \
     exif \
@@ -9,7 +9,8 @@ RUN install-php-extensions \
     mysqli \
     zip \
     imagick \
-    opcache
+    opcache \
+    redis
 
 COPY --from=wordpress /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 COPY --from=wordpress /usr/local/bin/docker-entrypoint.sh /usr/local/bin/
@@ -29,6 +30,9 @@ RUN sed -i \
 RUN sed -i \
     -e 's#root \* public/#root \* /var/www/html/#g' \
     /etc/caddy/Caddyfile
+
+# Custom php.ini settings
+COPY ./custom.ini /usr/local/etc/php/conf.d/custom.ini
 
 USER ${USER}
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
